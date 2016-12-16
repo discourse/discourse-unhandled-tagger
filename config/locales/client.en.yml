@@ -1,0 +1,9 @@
+en:
+  js:
+    unhandled_tagger:
+      handled:
+        title: "Handled"
+        help: "Mark topic as handled"
+      unhandle:
+        title: "Unhandle"
+        help: "Mark topic as unhandled"

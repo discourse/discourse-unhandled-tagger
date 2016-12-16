@@ -1,0 +1,15 @@
+{{#unless topic.isPrivateMessage}}
+{{#if topic.handled}}
+{{d-button class="unhandle"
+             icon="times-circle-o"
+             action="markUnhandled"
+             label="unhandled_tagger.unhandle.title"
+             title="unhandled_tagger.unhandle.help"}}
+{{else}}
+{{d-button class="handle"
+             icon="check-circle-o"
+             action="markHandled"
+             label="unhandled_tagger.handled.title"
+             title="unhandled_tagger.handled.help"}}
+{{/if}}
+{{/unless}}

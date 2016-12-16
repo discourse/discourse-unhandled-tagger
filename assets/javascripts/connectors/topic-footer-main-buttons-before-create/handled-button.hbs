@@ -1,3 +1,4 @@
+{{#if currentUser.staff}}
 {{#unless topic.isPrivateMessage}}
 {{#if topic.handled}}
 {{d-button class="unhandle"
@@ -13,3 +14,4 @@
              title="unhandled_tagger.handled.help"}}
 {{/if}}
 {{/unless}}
+{{/if}}

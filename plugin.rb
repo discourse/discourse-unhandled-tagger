@@ -15,10 +15,13 @@ after_initialize do
         tag = Tag.create!(name: "unhandled")
       end
       topic.tags ||= []
-      topic.tags << tag
-      topic.save
 
-      post.publish_change_to_clients!(:revised, reload_topic: true)
+      unless topic.tags.pluck(:id).include?(tag.id)
+        topic.tags << tag
+        topic.save
+
+        post.publish_change_to_clients!(:revised, reload_topic: true)
+      end
     end
   end
 end

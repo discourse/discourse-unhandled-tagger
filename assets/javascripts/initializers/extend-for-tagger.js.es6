@@ -4,6 +4,9 @@ function initializeTagger(api) {
 
   const Topic = api.container.lookupFactory('model:topic');
   const TopicFooterButtons = api.container.lookupFactory('component:topic-footer-buttons');
+  const siteSettings = api.container.lookup('site-settings:main');
+
+  if (!siteSettings.tagging_enabled) { return; }
 
   Topic.reopen({
     handled: function(){

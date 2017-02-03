@@ -6,6 +6,12 @@ function removeTag(topic) {
   return tags;
 }
 
+function updateTags(topic, tags, appEvents) {
+  return Topic.update(topic, { tags }).then(() => {
+    appEvents.trigger('header:show-topic', topic);
+  });
+}
+
 export default {
   shouldRender(args, component) {
     return component.siteSettings.tagging_enabled;
@@ -23,13 +29,13 @@ export default {
       const tags = removeTag(topic);
       tags.addObject('unhandled');
       this.set('handled', false);
-      return Topic.update(topic, { tags });
+      return updateTags(topic, tags, this.appEvents);
     },
     markHandled() {
       const { topic } = this.args;
       const tags = removeTag(topic);
       this.set('handled', true);
-      return Topic.update(topic, {tags});
+      return updateTags(topic, tags, this.appEvents);
     }
   }
 };

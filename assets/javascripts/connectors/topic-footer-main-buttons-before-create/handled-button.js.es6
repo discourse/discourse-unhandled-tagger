@@ -14,7 +14,7 @@ export default {
   setupComponent({ topic }, component) {
     const staff = component.currentUser && component.currentUser.get('staff');
     component.set('showHandled', staff && !topic.get('isPrivateMessage'));
-    component.set('handled', !topic.tags.includes('unhandled'));
+    component.set('handled', !topic.tags || !topic.tags.includes('unhandled'));
   },
 
   actions: {

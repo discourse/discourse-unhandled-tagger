@@ -17,8 +17,11 @@ after_initialize do
       topic.tags ||= []
 
       unless topic.tags.pluck(:id).include?(tag.id)
-        topic.tags << tag
-        topic.save
+        ActiveRecord::Base.transaction do
+          topic.tags.reload
+          topic.tags << tag
+          topic.save
+        end
 
         post.publish_change_to_clients!(:revised, reload_topic: true)
       end

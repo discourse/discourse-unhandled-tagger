@@ -1,41 +1,53 @@
-import Topic from 'discourse/models/topic';
-
-function removeTag(topic) {
-  const tags = topic.get('tags');
-  tags.removeObject('unhandled');
-  return tags;
-}
-
-function updateTags(topic, tags, appEvents) {
-  return Topic.update(topic, { tags }).then(() => {
-    appEvents.trigger('header:show-topic', topic);
-  });
-}
+import { action, computed, defineProperty } from "@ember/object";
+import Topic from "discourse/models/topic";
 
 export default {
   shouldRender(args, component) {
-    return component.siteSettings.tagging_enabled;
+    return (
+      component.siteSettings.tagging_enabled &&
+      component.siteSettings.unhandled_tag
+    );
   },
 
   setupComponent({ topic }, component) {
-    const staff = component.currentUser && component.currentUser.get('staff');
-    component.set('showHandled', staff && !topic.get('isPrivateMessage'));
-    component.set('handled', !topic.tags || !topic.tags.includes('unhandled'));
+    defineProperty(
+      component,
+      "showHandled",
+      computed(
+        "currentUser.staff",
+        "args.topic.isPrivateMessage",
+        () =>
+          this.currentUser &&
+          this.currentUser.staff &&
+          !this.args.topic.isPrivateMessage
+      )
+    );
+
+    defineProperty(
+      component,
+      "handled",
+      computed(
+        "args.topic.tags.[]",
+        "siteSettings.unhandled_tag",
+        () =>
+          !this.args.topic.tags ||
+          !this.args.topic.tags.includes(this.siteSettings.unhandled_tag)
+      )
+    );
   },
 
-  actions: {
-    markUnhandled() {
-      const { topic } = this.args;
-      const tags = removeTag(topic);
-      tags.addObject('unhandled');
-      this.set('handled', false);
-      return updateTags(topic, tags, this.appEvents);
-    },
-    markHandled() {
-      const { topic } = this.args;
-      const tags = removeTag(topic);
-      this.set('handled', true);
-      return updateTags(topic, tags, this.appEvents);
+  @action
+  setUnhandled(value) {
+    const { topic } = this.args;
+
+    const tags = topic.tags;
+    tags.removeObject(this.siteSettings.unhandled_tag);
+    if (value) {
+      tags.addObject(this.siteSettings.unhandled_tag);
     }
-  }
+
+    return Topic.update(topic, { tags }).then(() => {
+      this.appEvents.trigger("header:show-topic", topic);
+    });
+  },
 };

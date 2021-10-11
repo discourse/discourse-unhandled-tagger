@@ -1,0 +1,5 @@
+plugins:
+  unhandled_tag:
+    default: 'unhandled'
+    client: true
+    hidden: true

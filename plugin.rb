@@ -1,30 +1,22 @@
-# name: discourse-unhandeled-tagger
-# about: Add an "unahndeled" tag to every topic where non-staff post
+# frozen_string_literal: true
+
+# name: discourse-unhandled-tagger
+# about: Add an "unhandled" tag to every topic where non-staff post
 # version: 0.1
 # authors: Sam Saffron
 
-PLUGIN_NAME = "discourse_unhandeled-tagger".freeze
-
 after_initialize do
-
   DiscourseEvent.on(:post_created) do |post, _, user|
-    topic = post.topic
-    unless user.staff? || topic.private_message?
-      tag = Tag.find_by(name: "unhandled")
-      unless tag
-        tag = Tag.create!(name: "unhandled")
-      end
-      topic.tags ||= []
+    next if SiteSetting.unhandled_tag.blank?
+    next if user.staff?
+    next if post.topic.private_message?
 
-      unless topic.tags.pluck(:id).include?(tag.id)
-        ActiveRecord::Base.transaction do
-          topic.tags.reload
-          topic.tags << tag
-          topic.save
-        end
+    tag_names = post.topic.tags.pluck(:name)
+    next if tag_names.include?(SiteSetting.unhandled_tag)
 
-        post.publish_change_to_clients!(:revised, reload_topic: true)
-      end
-    end
+    PostRevisor.new(post.topic.first_post).revise!(
+      Discourse.system_user,
+      tags: tag_names << SiteSetting.unhandled_tag
+    )
   end
 end

@@ -16,7 +16,8 @@ after_initialize do
 
     PostRevisor.new(post.topic.first_post).revise!(
       Discourse.system_user,
-      tags: tag_names << SiteSetting.unhandled_tag
+      { tags: tag_names << SiteSetting.unhandled_tag },
+      skip_revision: true
     )
   end
 end

@@ -17,6 +17,7 @@ describe 'discourse-unhandled-tagger' do
     )
 
     expect(topic.tags.reload.pluck(:name)).to contain_exactly('unhandled')
+    expect(topic.first_post.post_revisions.size).to eq(0)
   end
 
   it 'does not tag a topic when staff user replies' do

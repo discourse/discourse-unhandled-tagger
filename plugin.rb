@@ -11,13 +11,15 @@ after_initialize do
     next if user.staff?
     next if post.topic.private_message?
 
-    tag_names = post.topic.tags.pluck(:name)
-    next if tag_names.include?(SiteSetting.unhandled_tag)
+    tag = Tag.find_or_create_by!(name: SiteSetting.unhandled_tag)
 
-    PostRevisor.new(post.topic.first_post).revise!(
-      Discourse.system_user,
-      { tags: tag_names << SiteSetting.unhandled_tag },
-      skip_revision: true
-    )
+    ActiveRecord::Base.transaction do
+      topic = post.topic
+      if !topic.tags.pluck(:id).include?(tag.id)
+        topic.tags.reload
+        topic.tags << tag
+        topic.save
+      end
+    end
   end
 end

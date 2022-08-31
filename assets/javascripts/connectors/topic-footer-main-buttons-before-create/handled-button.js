@@ -9,7 +9,7 @@ export default {
     );
   },
 
-  setupComponent({ topic }, component) {
+  setupComponent(_, component) {
     defineProperty(
       component,
       "showHandled",

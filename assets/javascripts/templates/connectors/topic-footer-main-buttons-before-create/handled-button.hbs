@@ -1,7 +1,7 @@
 {{#if showHandled}}
   {{#if handled}}
     <DButton
-      @class="unhandle"
+      class="unhandle"
       @icon="times-circle"
       @action={{action "setUnhandled" true}}
       @label="unhandled_tagger.unhandle.title"
@@ -9,7 +9,7 @@
     />
   {{else}}
     <DButton
-      @class="handle"
+      class="handle"
       @icon="check-circle"
       @action={{action "setUnhandled" false}}
       @label="unhandled_tagger.handled.title"

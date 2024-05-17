@@ -6,7 +6,7 @@
 # authors: Sam Saffron
 
 after_initialize do
-  DiscourseEvent.on(:post_created) do |post, _, user|
+  on(:post_created) do |post, _, user|
     next if SiteSetting.unhandled_tag.blank?
     next if user.staff?
     next if post.topic.private_message?

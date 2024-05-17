@@ -3,7 +3,7 @@
 require "rails_helper"
 
 describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
-  fab!(:topic) { Fabricate(:topic) }
+  fab!(:topic)
 
   before { SiteSetting.tagging_enabled = true }
 

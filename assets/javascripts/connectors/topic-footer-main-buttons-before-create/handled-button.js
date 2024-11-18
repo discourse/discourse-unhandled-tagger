@@ -13,26 +13,22 @@ export default {
     defineProperty(
       component,
       "showHandled",
-      computed(
-        "currentUser.staff",
-        "args.topic.isPrivateMessage",
-        () =>
+      computed("currentUser.staff", "args.topic.isPrivateMessage", function () {
+        return (
           this.currentUser &&
           this.currentUser.staff &&
           !this.args.topic.isPrivateMessage
-      )
+        );
+      })
     );
 
     defineProperty(
       component,
       "handled",
-      computed(
-        "args.topic.tags.[]",
-        "siteSettings.unhandled_tag",
-        () =>
-          !this.args.topic.tags ||
-          !this.args.topic.tags.includes(this.siteSettings.unhandled_tag)
-      )
+      computed("args.topic.tags.[]", "siteSettings.unhandled_tag", function () {
+        !this.args.topic.tags ||
+          !this.args.topic.tags.includes(this.siteSettings.unhandled_tag);
+      })
     );
   },
 

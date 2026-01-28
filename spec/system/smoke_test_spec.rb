@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-describe "DiscourseUnhandledTagger | smoke test", type: :system do
+describe "DiscourseUnhandledTagger | smoke test" do
   fab!(:current_user, :admin)
   fab!(:tag)
   fab!(:topic) { Fabricate(:topic, tags: [tag]) }

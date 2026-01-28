@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
   fab!(:topic)
 

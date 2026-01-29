@@ -24,15 +24,32 @@ export default class HandledButton extends Component {
   }
 
   get handled() {
-    return !this.topic.get("tags")?.includes?.(this.siteSettings.unhandled_tag);
+    const unhandledTag = this.siteSettings.unhandled_tag;
+    return !this.topic
+      .get("tags")
+      ?.some?.(
+        (tag) => (typeof tag === "string" ? tag : tag.name) === unhandledTag
+      );
   }
 
   @action
   async setUnhandled(value) {
     const tags = this.topic.tags;
-    tags.removeObject(this.siteSettings.unhandled_tag);
+    const unhandledTag = this.siteSettings.unhandled_tag;
+
+    const existingTag = tags.find(
+      (tag) => (typeof tag === "string" ? tag : tag.name) === unhandledTag
+    );
+    if (existingTag !== undefined) {
+      tags.removeObject(existingTag);
+    }
+
     if (value) {
-      tags.addObject(this.siteSettings.unhandled_tag);
+      if (tags.length > 0 && typeof tags[0] !== "string") {
+        tags.addObject({ name: unhandledTag });
+      } else {
+        tags.addObject(unhandledTag);
+      }
     }
 
     try {

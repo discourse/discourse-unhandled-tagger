@@ -12,14 +12,8 @@ after_initialize do
     next if post.topic.private_message?
 
     tag = Tag.find_or_create_by!(name: SiteSetting.unhandled_tag)
+    topic = post.topic
 
-    ActiveRecord::Base.transaction do
-      topic = post.topic
-      if !topic.tags.pluck(:id).include?(tag.id)
-        topic.tags.reload
-        topic.tags << tag
-        topic.save
-      end
-    end
+    topic.tags << tag unless topic.tags.exists?(id: tag.id)
   end
 end

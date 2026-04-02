@@ -17,27 +17,30 @@ after_initialize do
     unless topic.tags.exists?(id: tag.id)
       topic.tags << tag
       if SiteSetting.verbose_discourse_unhandled_tagger_logging
-        Rails.logger.warn("Verbose Unhandled Tagger Log: tag added to topic #{topic.id} by plugin")
+        Rails.logger.warn(
+          "Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: #{post.id} by plugin",
+        )
       end
     end
   end
 
   on(:post_edited) do |post, _, revisor|
     next if SiteSetting.unhandled_tag.blank?
+    next if post.topic.private_message?
     next unless SiteSetting.verbose_discourse_unhandled_tagger_logging
     next unless revisor.topic_tags_changed?
 
     if revisor.topic_diff["tags"][0].exclude?(SiteSetting.unhandled_tag) &&
          revisor.topic_diff["tags"][1].include?(SiteSetting.unhandled_tag)
       Rails.logger.warn(
-        "Verbose Unhandled Tagger Log: tag added to topic #{post.topic_id} by #{revisor.guardian.user.username}",
+        "Verbose Unhandled Tagger Log: tag added to topic: #{post.topic_id}, post: #{post.id} by #{revisor.guardian.user.username}",
       )
     end
 
     if revisor.topic_diff["tags"][1].exclude?(SiteSetting.unhandled_tag) &&
          revisor.topic_diff["tags"][0].include?(SiteSetting.unhandled_tag)
       Rails.logger.warn(
-        "Verbose Unhandled Tagger Log: tag removed from topic #{post.topic_id} by #{revisor.guardian.user.username}",
+        "Verbose Unhandled Tagger Log: tag removed from topic: #{post.topic_id}, post: #{post.id} by #{revisor.guardian.user.username}",
       )
     end
   end

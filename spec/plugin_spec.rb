@@ -96,7 +96,11 @@ describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
       Rails
         .logger
         .expects(:warn)
-        .with("Verbose Unhandled Tagger Log: tag added to topic #{topic.id} by plugin")
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by plugin/,
+          )
+        end
 
       PostCreator.create!(user, topic_id: topic.id, raw: "this is a test reply")
     end
@@ -107,7 +111,11 @@ describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
       Rails
         .logger
         .expects(:warn)
-        .with("Verbose Unhandled Tagger Log: tag added to topic #{topic.id} by plugin")
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by plugin/,
+          )
+        end
         .never
 
       PostCreator.create!(user, topic_id: topic.id, raw: "this is another reply")
@@ -119,7 +127,11 @@ describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
       Rails
         .logger
         .expects(:warn)
-        .with("Verbose Unhandled Tagger Log: tag added to topic #{topic.id} by #{admin.username}")
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by #{admin.username}/,
+          )
+        end
 
       PostRevisor.new(post, topic).revise!(admin, { tags: ["unhandled"] }, validate_post: false)
     end
@@ -135,9 +147,11 @@ describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
       Rails
         .logger
         .expects(:warn)
-        .with(
-          "Verbose Unhandled Tagger Log: tag removed from topic #{topic.id} by #{admin.username}",
-        )
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag removed from topic: #{topic.id}, post: \d+ by #{admin.username}/,
+          )
+        end
 
       PostRevisor.new(post, topic).revise!(admin, { tags: ["other"] }, validate_post: false)
     end
@@ -153,7 +167,11 @@ describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
       Rails
         .logger
         .expects(:warn)
-        .with("Verbose Unhandled Tagger Log: tag added to topic #{topic.id} by plugin")
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by plugin/,
+          )
+        end
         .never
 
       PostCreator.create!(user, topic_id: topic.id, raw: "this is a test reply")
@@ -165,7 +183,11 @@ describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
       Rails
         .logger
         .expects(:warn)
-        .with("Verbose Unhandled Tagger Log: tag added to topic #{topic.id} by #{admin.username}")
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by #{admin.username}/,
+          )
+        end
         .never
 
       PostRevisor.new(post, topic).revise!(admin, { tags: ["unhandled"] }, validate_post: false)

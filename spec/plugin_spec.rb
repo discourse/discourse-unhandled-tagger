@@ -86,6 +86,114 @@ describe "discourse-unhandled-tagger" do # rubocop:disable RSpec/DescribeClass
     expect(topic.tags.reload.pluck(:name)).to contain_exactly("unhandled")
   end
 
+  context "with verbose logging enabled" do
+    fab!(:user)
+    fab!(:admin)
+
+    before { SiteSetting.verbose_discourse_unhandled_tagger_logging = true }
+
+    it "logs when the plugin adds the unhandled tag" do
+      Rails
+        .logger
+        .expects(:warn)
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by plugin/,
+          )
+        end
+
+      PostCreator.create!(user, topic_id: topic.id, raw: "this is a test reply")
+    end
+
+    it "does not log when the tag already exists on the topic" do
+      PostCreator.create!(user, topic_id: topic.id, raw: "this is a test reply")
+
+      Rails
+        .logger
+        .expects(:warn)
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by plugin/,
+          )
+        end
+        .never
+
+      PostCreator.create!(user, topic_id: topic.id, raw: "this is another reply")
+    end
+
+    it "logs when a user adds the unhandled tag via editing" do
+      post = PostCreator.create!(admin, topic_id: topic.id, raw: "this is a test reply")
+
+      Rails
+        .logger
+        .expects(:warn)
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by #{admin.username}/,
+          )
+        end
+
+      PostRevisor.new(post, topic).revise!(admin, { tags: ["unhandled"] }, validate_post: false)
+    end
+
+    it "logs when a user removes the unhandled tag via editing" do
+      DiscourseTagging.tag_topic_by_names(
+        topic,
+        Discourse.system_user.guardian,
+        %w[unhandled other],
+      )
+      post = PostCreator.create!(admin, topic_id: topic.id, raw: "this is a test reply")
+
+      Rails
+        .logger
+        .expects(:warn)
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag removed from topic: #{topic.id}, post: \d+ by #{admin.username}/,
+          )
+        end
+
+      PostRevisor.new(post, topic).revise!(admin, { tags: ["other"] }, validate_post: false)
+    end
+  end
+
+  context "with verbose logging disabled" do
+    fab!(:user)
+    fab!(:admin)
+
+    before { SiteSetting.verbose_discourse_unhandled_tagger_logging = false }
+
+    it "does not log when the plugin adds the unhandled tag" do
+      Rails
+        .logger
+        .expects(:warn)
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by plugin/,
+          )
+        end
+        .never
+
+      PostCreator.create!(user, topic_id: topic.id, raw: "this is a test reply")
+    end
+
+    it "does not log when a user edits tags" do
+      post = PostCreator.create!(admin, topic_id: topic.id, raw: "this is a test reply")
+
+      Rails
+        .logger
+        .expects(:warn)
+        .with do |msg|
+          msg.match?(
+            /Verbose Unhandled Tagger Log: tag added to topic: #{topic.id}, post: \d+ by #{admin.username}/,
+          )
+        end
+        .never
+
+      PostRevisor.new(post, topic).revise!(admin, { tags: ["unhandled"] }, validate_post: false)
+    end
+  end
+
   context "with category tag restrictions" do
     fab!(:tag_group) { Fabricate(:tag_group, name: "Category Tags") }
     fab!(:windows_tag) { Fabricate(:tag, name: "windows") }

@@ -3,3 +3,6 @@ plugins:
     default: 'unhandled'
     client: true
     hidden: true
+  verbose_discourse_unhandled_tagger_logging:
+    default: false
+    hidden: true

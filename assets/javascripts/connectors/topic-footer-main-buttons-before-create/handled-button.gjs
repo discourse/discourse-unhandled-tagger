@@ -4,6 +4,10 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import {
+  addUniqueValueToArray,
+  removeValueFromArray,
+} from "discourse/lib/array-tools";
 import Topic from "discourse/models/topic";
 
 export default class HandledButton extends Component {
@@ -41,14 +45,14 @@ export default class HandledButton extends Component {
       (tag) => (typeof tag === "string" ? tag : tag.name) === unhandledTag
     );
     if (existingTag !== undefined) {
-      tags.removeObject(existingTag);
+      removeValueFromArray(tags, existingTag);
     }
 
     if (value) {
       if (tags.length > 0 && typeof tags[0] !== "string") {
-        tags.addObject({ name: unhandledTag });
+        addUniqueValueToArray(tags, { name: unhandledTag });
       } else {
-        tags.addObject(unhandledTag);
+        addUniqueValueToArray(tags, unhandledTag);
       }
     }
 
